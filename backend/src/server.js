@@ -1,11 +1,19 @@
 import express from 'express';
 import {config} from 'dotenv';  
 import { connectDB, disconnectDB } from './config/db.js';  
+import  auhtRoutes from './routes/authRoutes.js';
 
 config();
 connectDB();
 
 const app = express();
+
+//BODY PARSING MIDDLEWARE
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+//API ROUTES
+app.use('/auth', auhtRoutes);
 
 app.get('/api', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
