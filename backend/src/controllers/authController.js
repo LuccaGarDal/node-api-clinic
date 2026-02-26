@@ -2,7 +2,7 @@ import { prisma } from "../config/db.js";
 import bcrypt from 'bcryptjs';  
 
 const register = async (req, res) => {
-    const {name, email, password, role} = req.body;
+    const {nome, email, senha, cargo} = req.body;
     
     //Check if email already exists in the database
     const userExists = await prisma.user.findUnique({
@@ -15,15 +15,15 @@ const register = async (req, res) => {
 
     //Hash password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(senha, salt);
 
     //Create new user in the database
-    const newUser = await prisma.user.create({
+    const user = await prisma.user.create({
         data: {
-            name,
+            nome,
             email,
-            password: hashedPassword,
-            role,
+            senha: hashedPassword,
+            cargo,
         },
     });
 
@@ -31,12 +31,43 @@ const register = async (req, res) => {
         status: "success",
         data: {
             user: { 
-                id: newUser.id,
-                name: name,
-                email: email,
-                role: role
+                id: user.id,
+                nome: user.nome,
+                email: user.email,
+                cargo: user.cargo
             }}     
         });
 }
 
-export { register };
+const login = async (req, res) => {
+    const { email, senha } = req.body;
+
+    //Check if user exists
+    const user = await prisma.user.findUnique({
+        where: { email: email },
+    });
+
+    if (!user) {
+        return res.status(400).json({ error: "Invalid email or password" });
+    }
+
+    //Verify password
+    const isPasswordValid = await bcrypt.compare(senha, user.senha);
+
+    if (!isPasswordValid) {
+        return res.status(400).json({ error: "Invalid email or password" });
+    }   
+
+    res.status(201).json({
+        status: "success",
+        data: {
+            user: {
+                id: user.id,
+                email: user.email,
+                cargo: user.cargo
+            }
+        }
+    });
+}
+
+export { register, login };
