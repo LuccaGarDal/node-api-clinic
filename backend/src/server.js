@@ -2,6 +2,7 @@ import express from 'express';
 import {config} from 'dotenv';  
 import { connectDB, disconnectDB } from './config/db.js';  
 import  auhtRoutes from './routes/authRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js';
 
 config();
 connectDB();
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //API ROUTES
 app.use('/auth', auhtRoutes);
+app.use('/api', appointmentRoutes);
 
 app.get('/api', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
