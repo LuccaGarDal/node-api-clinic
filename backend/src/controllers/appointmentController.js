@@ -32,4 +32,27 @@ const createAppointment = async (req, res) => {
     res.status(201).json(appointment);
 }
 
-export {createAppointment };
+const deleteAppointment = async (req, res) => {
+    const appointment = await prisma.appointment.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
+
+    if (appointment.userId !== req.user.id) {
+        return res.status(403).json({ error: "You are not authorized to delete this appointment" });
+    }
+
+    await prisma.appointment.delete({
+        where: {
+            id: req.params.id
+        }
+    });
+
+    res.status(200).json({
+        status:"success",
+        message: "Appointment deleted successfully" 
+    });
+}
+
+export {createAppointment, deleteAppointment };
