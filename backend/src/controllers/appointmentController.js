@@ -117,4 +117,17 @@ const updateAppointment = async (req, res) => {
     
 }
 
-export {createAppointment, deleteAppointment, updateAppointment};
+const getAppointments = async (req, res) => {
+    const appointments = await prisma.appointment.findMany({
+        where: {
+            userId: req.user.id
+        }
+    });
+
+    res.status(200).json({
+        status: "success",
+        data: appointments
+    });
+}
+
+export {createAppointment, deleteAppointment, updateAppointment, getAppointments};
