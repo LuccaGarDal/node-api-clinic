@@ -1,7 +1,7 @@
 import {prisma} from '../config/db.js';
 
 const createAppointment = async (req, res) => {
-    const {endereco, notas, userId, inicio} = req.body;
+    const {endereco, notas, inicio} = req.body;
 
     const dataInicio = new Date(inicio);
     const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
@@ -21,7 +21,7 @@ const createAppointment = async (req, res) => {
 
     const appointment = await prisma.appointment.create({
         data: {
-            userId,
+            userId: req.user.id,
             inicio: dataInicio,
             fim: dataFim,
             endereco,
