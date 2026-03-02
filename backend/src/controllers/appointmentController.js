@@ -39,6 +39,10 @@ const deleteAppointment = async (req, res) => {
         }
     });
 
+    if (!appointment) {
+        return res.status(404).json({ error: "Appointment not found" });
+    }
+
     if (appointment.userId !== req.user.id) {
         return res.status(403).json({ error: "You are not authorized to delete this appointment" });
     }
@@ -130,4 +134,14 @@ const getAppointments = async (req, res) => {
     });
 }
 
-export {createAppointment, deleteAppointment, updateAppointment, getAppointments};
+const getAllAppointments = async (req, res) => {
+
+    const appointments = await prisma.appointment.findMany();
+
+    res.status(200).json({
+        status: "success",
+        data: appointments
+    });
+}
+
+export {createAppointment, deleteAppointment, updateAppointment, getAppointments, getAllAppointments};

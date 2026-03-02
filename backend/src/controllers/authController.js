@@ -29,7 +29,7 @@ const register = async (req, res) => {
     });
 
     //Generate token
-    const token = generateToken(user.id, res);
+    const token = generateToken(user.id, user.cargo, res);
 
     res.status(201).json({
         status: "success",
@@ -65,7 +65,7 @@ const login = async (req, res) => {
     }   
 
     //Generate token
-    const token = generateToken(user.id, res);
+    const token = generateToken(user.id, user.cargo, res);
 
     res.status(201).json({
         status: "success",
