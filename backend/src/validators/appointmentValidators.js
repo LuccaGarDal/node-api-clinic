@@ -4,7 +4,9 @@ const addAppointmentSchema = z.object({
     inicio: z.string().refine((date) => !isNaN(Date.parse(date)), {
         message: "Invalid date format"
     }),
-    endereco: z.string().min(1, "Address is required"),
+    cep: z.string().regex(/^\d{5}-?\d{3}$/),
+    numero: z.string(),
+    complemento: z.string().optional(),
     notas: z.string().optional()
 })
 

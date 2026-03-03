@@ -1,7 +1,8 @@
 import {prisma} from '../config/db.js';
+import { getCepData } from '../service/cepService.js';
 
 const createAppointment = async (req, res) => {
-    const {endereco, notas, inicio} = req.body;
+    const {notas, inicio, cep, numero, complemento} = req.body;
 
     const dataInicio = new Date(inicio);
     const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
@@ -19,12 +20,26 @@ const createAppointment = async (req, res) => {
         return res.status(400).json({ error: "There is already an appointment for this date" });
     }
 
+    const cepData = await getCepData(cep);
+
+    const address = await prisma.address.create({
+        data: {
+            cep: cep.replace(/\D/g, ""),
+            logradouro: cepData.logradouro,
+            bairro: cepData.bairro,
+            cidade: cepData.localidade,
+            estado: cepData.uf,
+            numero,
+            complemento
+        }
+    });
+
     const appointment = await prisma.appointment.create({
         data: {
             userId: req.user.id,
             inicio: dataInicio,
             fim: dataFim,
-            endereco,
+            addressId: address.id,
             notas
         }
     });
@@ -47,10 +62,14 @@ const deleteAppointment = async (req, res) => {
         return res.status(403).json({ error: "You are not authorized to delete this appointment" });
     }
 
-    await prisma.appointment.delete({
-        where: {
-            id: req.params.id
-        }
+    await prisma.$transaction(async (tx) => {
+        await tx.appointment.delete({
+            where: { id: req.params.id }
+        });
+
+        await tx.address.delete({
+            where: { id: appointment.addressId }
+        });
     });
 
     res.status(200).json({
@@ -60,7 +79,7 @@ const deleteAppointment = async (req, res) => {
 }
 
 const updateAppointment = async (req, res) => {
-    const {endereco, notas, inicio} = req.body;
+    const {notas, inicio, cep, numero, complemento} = req.body;
 
     const appointment = await prisma.appointment.findUnique({
         where: {
@@ -76,11 +95,39 @@ const updateAppointment = async (req, res) => {
         return res.status(403).json({ error: "You are not authorized to update this appointment" });
     }
 
-    const updateData = {};
+    if (cep || numero || complemento) {
 
-    if (endereco !== undefined) {
-        updateData.endereco = endereco;
+        const addressUpdate = {};
+
+        if (cep) {
+            const cepData = await getCepData(cep);
+
+            if (!cepData || cepData.erro) {
+                return res.status(400).json({ error: "Invalid CEP" });
+            }
+
+            addressUpdate.cep = cep.replace(/\D/g, "");
+            addressUpdate.logradouro = cepData.logradouro;
+            addressUpdate.bairro = cepData.bairro;
+            addressUpdate.cidade = cepData.localidade;
+            addressUpdate.estado = cepData.uf;
+        }
+
+        if (numero !== undefined) {
+            addressUpdate.numero = numero;
+        }
+
+        if (complemento !== undefined) {
+            addressUpdate.complemento = complemento;
+        }
+
+        await prisma.address.update({
+            where: { id: appointment.addressId },
+            data: addressUpdate
+        });
     }
+
+    const updateData = {};
     
     if (notas !== undefined) {
         updateData.notas = notas;
@@ -89,11 +136,10 @@ const updateAppointment = async (req, res) => {
     if (inicio !== undefined) {
         const dataInicio = new Date(inicio);
         const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
-        updateData.inicio = dataInicio;
-        updateData.fim = dataFim;
 
         const appointmentExists = await prisma.appointment.findFirst({
             where: {
+                id: { not: req.params.id },
                 AND: [
                     { inicio: { lt: dataFim } },
                     { fim: { gt: dataInicio } }
@@ -104,13 +150,17 @@ const updateAppointment = async (req, res) => {
         if (appointmentExists) {
             return res.status(400).json({ error: "There is already an appointment for this date" });
         }
+
+        updateData.inicio = dataInicio;
+        updateData.fim = dataFim;
     }
 
     const updatedAppointment = await prisma.appointment.update({
         where: {
             id: req.params.id
         },
-        data: updateData
+        data: updateData,
+        include: {address: true}
     });
 
     res.status(200).json({
@@ -125,7 +175,8 @@ const getAppointments = async (req, res) => {
     const appointments = await prisma.appointment.findMany({
         where: {
             userId: req.user.id
-        }
+        },
+        include: { address: true }
     });
 
     res.status(200).json({
@@ -136,7 +187,12 @@ const getAppointments = async (req, res) => {
 
 const getAllAppointments = async (req, res) => {
 
-    const appointments = await prisma.appointment.findMany();
+    const appointments = await prisma.appointment.findMany({
+        include: {
+            address: true,
+            user: true
+        }
+    });
 
     res.status(200).json({
         status: "success",

@@ -28,13 +28,29 @@ model User {
   appointments Appointment[]
 }
 
+model Address {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  cep         String
+  logradouro  String
+  bairro      String
+  cidade      String
+  estado      String
+  numero      String
+  complemento String?
+
+  appointments Appointment[]
+}
+
 model Appointment {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   userId String @db.ObjectId
   user   User   @relation(fields: [userId], references: [id])
   inicio DateTime
   fim   DateTime
-  endereco String
+
+  addressId   String   @db.ObjectId
+  address     Address  @relation(fields: [addressId], references: [id])
+
   notas String?
   criadoEm DateTime @default(now())
 }
