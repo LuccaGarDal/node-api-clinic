@@ -3,6 +3,8 @@ import {config} from 'dotenv';
 import { connectDB, disconnectDB } from './config/db.js';  
 import  auhtRoutes from './routes/authRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 config();
 connectDB();
@@ -12,6 +14,13 @@ const app = express();
 //BODY PARSING MIDDLEWARE
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser())
+
+app.use(cors({
+  origin: "http://localhost:5173", // endereço do Vue
+  credentials: true
+}));
 
 //API ROUTES
 app.use('/auth', auhtRoutes);

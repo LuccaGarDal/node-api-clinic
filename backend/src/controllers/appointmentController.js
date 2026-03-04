@@ -1,11 +1,20 @@
 import {prisma} from '../config/db.js';
 import { getCepData } from '../service/cepService.js';
+import { getRainForecast } from '../service/weatherService.js';
 
 const createAppointment = async (req, res) => {
     const {notas, inicio, cep, numero, complemento} = req.body;
 
     const dataInicio = new Date(inicio);
+    const now = new Date()
     const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
+
+    if (dataInicio < now) {
+        return res.status(400).json({
+            status: "error",
+            message: "Não é permitido agendar consultas no passado"
+        })
+    }
 
     const appointmentExists = await prisma.appointment.findFirst({
         where: {
@@ -179,9 +188,27 @@ const getAppointments = async (req, res) => {
         include: { address: true }
     });
 
+    const enrichedAppointments = await Promise.all(
+        appointments.map(async (appointment) => {
+
+            const city = appointment.address?.cidade;
+
+            let weather = null;
+
+            if (city) {
+                weather = await getRainForecast(city, appointment.inicio);
+            }
+
+            return {
+                ...appointment,
+                weather
+            };
+        })
+    );
+
     res.status(200).json({
         status: "success",
-        data: appointments
+        data: enrichedAppointments
     });
 }
 
