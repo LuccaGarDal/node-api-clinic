@@ -1,0 +1,33 @@
+<script setup>
+
+import { useRouter } from 'vue-router'
+import { ref } from 'vue';
+import  api  from '../services/api';
+
+const router = useRouter();
+const email = ref('');
+const senha = ref('');
+
+const login = async () => {
+  
+    const response = await api.post('/auth/login', {
+      email: email.value,
+      senha: senha.value
+    });
+    
+    localStorage.setItem('token', response.data.token);
+    router.push('/dashboard');
+ 
+};
+</script>
+
+<template>
+  <div>
+    <h1>Login</h1>
+
+    <input v-model="email" placeholder="Email" />
+    <input v-model="senha" type="password" placeholder="Senha" />
+
+    <button @click="login">Entrar</button>
+  </div>
+</template>
