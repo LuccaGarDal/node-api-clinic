@@ -11,7 +11,7 @@ const register = async (req, res) => {
     });
 
     if (userExists) {
-        return res.status(400).json({ error: "Email already in use" });
+        return res.status(400).json({ message: "Email em uso" });
     }
 
     //Hash password
@@ -54,14 +54,14 @@ const login = async (req, res) => {
     });
 
     if (!user) {
-        return res.status(400).json({ error: "Invalid email or password" });
+        return res.status(400).json({ message: "Email ou senha inválidos" });
     }
 
     //Verify password
     const isPasswordValid = await bcrypt.compare(senha, user.senha);
 
     if (!isPasswordValid) {
-        return res.status(400).json({ error: "Invalid email or password" });
+        return res.status(400).json({ message: "Email ou senha inválidos" });
     }   
 
     //Generate token

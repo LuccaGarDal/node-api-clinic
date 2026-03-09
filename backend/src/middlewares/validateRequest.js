@@ -13,7 +13,7 @@ export const validateRequest = (schema) => {
             
             console.log(flatErrors)
 
-            return res.status(400).json({message: flatErrors.join(", ")})
+            return res.status(400).json({ message: flatErrors[0] })
         }
 
         next();
