@@ -6,6 +6,7 @@ const createAppointment = async (req, res) => {
     const {notas, inicio, cep, numero, complemento} = req.body;
 
     const dataInicio = new Date(inicio);
+    dataInicio.setMinutes(dataInicio.getMinutes() - dataInicio.getTimezoneOffset());
     const now = new Date()
     const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
 
@@ -26,7 +27,7 @@ const createAppointment = async (req, res) => {
     });
 
     if (appointmentExists) {
-        return res.status(400).json({ error: "There is already an appointment for this date" });
+        return res.status(400).json({ message: "There is already an appointment for this date" });
     }
 
     const cepData = await getCepData(cep);

@@ -17,7 +17,7 @@ const login = async () => {
       senha: senha.value
     });
 
-    localStorage.setItem('token', response.data.token);
+    localStorage.setItem('token', response.data.data.token);
     router.push('/portal');
 
   } catch (error) {
