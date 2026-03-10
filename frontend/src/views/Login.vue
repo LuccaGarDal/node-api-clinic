@@ -18,7 +18,7 @@ const login = async () => {
     });
 
     localStorage.setItem('token', response.data.token);
-    router.push('/dashboard');
+    router.push('/portal');
 
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'Erro ao fazer login';
