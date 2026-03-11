@@ -32,10 +32,6 @@ const agendar = async () => {
 
 </script>
 
-
-
-
-
 <template>
     <div>
         <h1>Agendar Consulta</h1>
@@ -45,7 +41,7 @@ const agendar = async () => {
         <input v-model="notas" placeholder="Observações da consulta" />
         <input v-model="cep" placeholder="CEP" />
         <input v-model="numero" placeholder="Número da residência" />
-        <input v-model="complemento" type="password" placeholder="Complemento" />
+        <input v-model="complemento" placeholder="Complemento" />
         <button @click="agendar">Agendar</button>
         <p v-if="errorMessage" class="text-red-500">
     {{ errorMessage }}  
