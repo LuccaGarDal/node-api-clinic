@@ -1,3 +1,16 @@
+<script setup>
+  import { useRouter } from 'vue-router'
+
+  const router = useRouter();
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('cargo');
+    router.push('/');
+  }
+</script>
+
+
 <template>
   <div class="portal-inicial">
 
@@ -10,6 +23,8 @@
         <router-link to="/portal/consulta" class="cta-button">Agendar Consulta</router-link>
         |
         <router-link to="/portal/minhas-consultas" class="cta-button">Minhas Consultas</router-link>
+        |
+        <button @click="logout" class="logout>">Sair</button>
       </nav>
     </header>
 

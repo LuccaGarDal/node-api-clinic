@@ -17,8 +17,15 @@ const login = async () => {
       senha: senha.value
     });
 
+    console.log(response)
+
     localStorage.setItem('token', response.data.data.token);
-    router.push('/portal');
+    localStorage.setItem('cargo' , response.data.data.user.cargo);
+    if(response.data.data.user.cargo === 'PACIENTE') {
+      router.push('/portal');
+    } else {
+      router.push('/dashboard');
+    }
 
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'Erro ao fazer login';
