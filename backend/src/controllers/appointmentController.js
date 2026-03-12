@@ -186,7 +186,10 @@ const getAppointments = async (req, res) => {
         where: {
             userId: req.user.id
         },
-        include: { address: true }
+        include: { address: true },
+        orderBy: {
+            inicio: 'desc'
+        }
     });
 
     const enrichedAppointments = await Promise.all(
@@ -219,12 +222,33 @@ const getAllAppointments = async (req, res) => {
         include: {
             address: true,
             user: true
+        },
+        orderBy: {
+            inicio: 'desc'
         }
     });
 
+    const enrichedAppointments = await Promise.all(
+        appointments.map(async (appointment) => {
+
+            const city = appointment.address?.cidade;
+
+            let weather = null;
+
+            if (city) {
+                weather = await getRainForecast(city, appointment.inicio);
+            }
+
+            return {
+                ...appointment,
+                weather
+            };
+        })
+    );
+
     res.status(200).json({
         status: "success",
-        data: appointments
+        data: enrichedAppointments
     });
 }
 

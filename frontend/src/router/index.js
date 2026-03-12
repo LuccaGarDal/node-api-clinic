@@ -58,11 +58,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  const role = localStorage.getItem('role')
+  const cargo = localStorage.getItem('cargo')
 
   if (to.meta.requiresAuth && !token) {
     next('/login')
-  } else if (to.meta.role && to.meta.role !== role) {
+  } else if (to.meta.cargo && to.meta.cargo !== cargo) {
     next('/') 
   } else {
     next() 
