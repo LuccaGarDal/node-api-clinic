@@ -6,11 +6,10 @@ const createAppointment = async (req, res) => {
     const {notas, inicio, cep, numero, complemento} = req.body;
 
     const dataInicio = new Date(inicio);
-    dataInicio.setMinutes(dataInicio.getMinutes() - dataInicio.getTimezoneOffset());
     const now = new Date()
     const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
 
-    if (dataInicio < now) {
+    if (dataInicio.getTime() < Date.now()) {
         return res.status(400).json({
             status: "error",
             message: "Não é permitido agendar consultas no passado"

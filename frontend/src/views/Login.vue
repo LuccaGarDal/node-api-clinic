@@ -35,15 +35,77 @@ const login = async () => {
 </script>
 
 <template>
-  <div>
-    <h1>Login</h1>
+  <div class = "login-container">
+    <div class = "pagina">
+      <h1>Login</h1>
 
-    <input v-model="email" placeholder="Email" />
-    <input v-model="senha" type="password" placeholder="Senha" />
+      <div class = "formulario">
+        <input v-model="email" placeholder="Email" />
+        <input v-model="senha" type="password" placeholder="Senha" />
+      </div>
 
-    <button @click="login">Entrar</button>
-    <p v-if="errorMessage" class="text-red-500">
-    {{ errorMessage }}  
-    </p>
+      <button class = "botao" @click="login">
+        Entrar
+      </button>
+
+      <p v-if="errorMessage" class="erro">
+      {{ errorMessage }}  
+      </p>
+
+    </div>
   </div>
 </template>
+
+<style scoped>
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.pagina {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+h1 {
+  margin-bottom: 25px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.botao {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #4facfe;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.erro {
+  color: red;
+  margin-top: 10px;
+}
+</style>

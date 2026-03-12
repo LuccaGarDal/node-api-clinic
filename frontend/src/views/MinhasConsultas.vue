@@ -8,6 +8,18 @@ const router = useRouter();
 const errorMessage = ref('');
 const consultas = ref([]);
 
+const formatarData = (data) => {
+  return new Date(data)
+    .toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+    .replace(',', ' às');
+};
+
 const minhasConsultas = async () => {
 
     try {
@@ -16,9 +28,9 @@ const minhasConsultas = async () => {
         console.log(result);
         consultas.value = result.map(sessao => ({
             ...sessao,
-            inicio: sessao.inicio?.replace('T', ' ').slice(0,16),
-            fim: sessao.fim?.replace('T', ' ').slice(0,16)
-        }));
+            inicio: formatarData(sessao.inicio),
+            fim: formatarData(sessao.fim)
+    }));
     } catch (error) {
         console.log(error);
         errorMessage.value = error.response?.data?.message || 'Erro ao buscar consultas';
@@ -32,15 +44,60 @@ onMounted(() => {
 </script>
 
 <template>
-    <div>
-        <h1>Minhas Consultas</h1>
-        <div v-for="consulta in consultas":key="consulta.id">
-            <p>Data: {{ consulta.inicio }}</p>
-            <p>Observações: {{ consulta.notas }}</p>
-            <p>Endereço: {{ consulta.address.logradouro }}, {{ consulta.address.numero }}. {{consulta.address.complemento}}</p>
-            <p>Clima para o dia: {{ consulta.weather?.message || "Sem previsão do tempo" }} <p>
-</p></p>
-            <hr>
-        </div>
+  <div class="consultas">
+
+    <h1>Minhas Consultas</h1>
+
+    <div
+      v-for="consulta in consultas"
+      :key="consulta.id"
+      class="consulta-itens"
+    >
+
+      <p><b>Data:</b> {{ consulta.inicio }}</p>
+
+      <p><b>Observações:</b> {{ consulta.notas || "Sem observações" }}</p>
+
+      <p>
+        <b>Endereço:</b>
+        {{ consulta.address.logradouro }},
+        {{ consulta.address.numero }}
+        <span v-if="consulta.address.complemento">
+          - {{ consulta.address.complemento }}
+        </span>
+      </p>
+
+      <p>
+        <b>Clima para o dia:</b>
+        {{ consulta.weather?.message || "Sem previsão do tempo" }}
+      </p>
+
     </div>
+
+  </div>
 </template>
+
+<style scoped>
+
+.consultas {
+  max-width: 700px;
+  margin: 40px auto;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.consulta-itens {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.consulta-itens p {
+  margin: 6px 0;
+}
+
+</style>
