@@ -43,7 +43,7 @@ const routes = [
           component: Consulta
         },
         {
-          path: "minhas-consultas",
+          path: "consultas",
           name: "minhas-consultas",
           component: MinhasConsultas
         }
@@ -60,12 +60,15 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   const cargo = localStorage.getItem('cargo')
 
-  if (to.meta.requiresAuth && !token) {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const requiredCargo = to.matched.find(record => record.meta.cargo)?.meta.cargo
+
+  if (requiresAuth && !token) {
     next('/login')
-  } else if (to.meta.cargo && to.meta.cargo !== cargo) {
-    next('/') 
+  } else if (requiredCargo && requiredCargo !== cargo) {
+    next('/')
   } else {
-    next() 
+    next()
   }
 })
 

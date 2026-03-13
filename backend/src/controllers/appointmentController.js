@@ -1,13 +1,14 @@
 import {prisma} from '../config/db.js';
 import { getCepData } from '../service/cepService.js';
 import { getRainForecast } from '../service/weatherService.js';
+import { z } from 'zod';
 
 const createAppointment = async (req, res) => {
     const {notas, inicio, cep, numero, complemento} = req.body;
 
     const dataInicio = new Date(inicio);
     const now = new Date()
-    const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
+    const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); 
 
     if (dataInicio.getTime() < Date.now()) {
         return res.status(400).json({
@@ -67,7 +68,7 @@ const deleteAppointment = async (req, res) => {
         return res.status(404).json({ error: "Appointment not found" });
     }
 
-    if (appointment.userId !== req.user.id) {
+    if (appointment.userId !== req.user.id && req.user.cargo !== 'SECRETARIO') {
         return res.status(403).json({ error: "You are not authorized to delete this appointment" });
     }
 
@@ -100,21 +101,36 @@ const updateAppointment = async (req, res) => {
         return res.status(404).json({ error: "Appointment not found" });
     }
 
-    if (appointment.userId !== req.user.id) {
+    if (appointment.userId !== req.user.id && req.user.cargo !== 'SECRETARIO') {
         return res.status(403).json({ error: "You are not authorized to update this appointment" });
     }
 
-    if (cep || numero || complemento) {
+    if (cep !== undefined || numero !== undefined || complemento !== undefined) {
 
         const addressUpdate = {};
 
-        if (cep) {
-            const cepData = await getCepData(cep);
+        if (cep !== undefined && cep !== null && cep !== "") {
 
-            if (!cepData || cepData.erro) {
-                return res.status(400).json({ error: "Invalid CEP" });
+            const cepRegex = /^\d{5}-?\d{3}$/;
+            if (!cepRegex.test(cep)) {
+                return res.status(400).json({
+                    message: "CEP deve ter 8 números, no formato 00000-000"
+                });
             }
 
+            let cepData;
+            try {
+                cepData = await getCepData(cep);
+            } catch (err) {
+                return res.status(400).json({ message: "CEP não encontrado" });
+            }
+
+            if (!cepData || cepData.erro) {
+                return res.status(400).json({ message: "CEP inválido" });
+            }
+
+            console.log("foi");
+            
             addressUpdate.cep = cep.replace(/\D/g, "");
             addressUpdate.logradouro = cepData.logradouro;
             addressUpdate.bairro = cepData.bairro;
@@ -122,18 +138,20 @@ const updateAppointment = async (req, res) => {
             addressUpdate.estado = cepData.uf;
         }
 
-        if (numero !== undefined) {
+        if (numero !== undefined && numero !== null) {
             addressUpdate.numero = numero;
         }
 
-        if (complemento !== undefined) {
+        if (complemento !== undefined && complemento !== null) {
             addressUpdate.complemento = complemento;
         }
-
-        await prisma.address.update({
-            where: { id: appointment.addressId },
-            data: addressUpdate
-        });
+      
+        if (Object.keys(addressUpdate).length > 0) {
+            await prisma.address.update({
+                where: { id: appointment.addressId },
+                data: addressUpdate
+            });
+        }
     }
 
     const updateData = {};
@@ -142,8 +160,15 @@ const updateAppointment = async (req, res) => {
         updateData.notas = notas;
     }
     
-    if (inicio !== undefined) {
-        const dataInicio = new Date(inicio);
+    if (inicio !== undefined && inicio !== null && inicio !== "") {
+    
+        const dataInicio = new Date(`${inicio}:00`);
+
+        if (isNaN(dataInicio.getTime())) {
+            return res.status(400).json({
+                error: "Invalid date"
+            });
+        }
         const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
 
         const appointmentExists = await prisma.appointment.findFirst({
@@ -157,7 +182,7 @@ const updateAppointment = async (req, res) => {
         });
 
         if (appointmentExists) {
-            return res.status(400).json({ error: "There is already an appointment for this date" });
+            return res.status(400).json({ error: "Já existe uma consulta para esse horário" });
         }
 
         updateData.inicio = dataInicio;

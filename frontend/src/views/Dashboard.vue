@@ -7,7 +7,28 @@ import  api  from '../services/api';
 const router = useRouter();
 const errorMessage = ref('');
 const consultas = ref([]);
+const consultaEditando = ref(null);
 
+const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('cargo');
+    router.push('/');
+  }
+
+const editarConsulta = (consulta) => {
+  const data = new Date(consulta.inicioOriginal);
+
+  const dataLocal = new Date(
+    data.getTime() - data.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, 16);
+
+  consultaEditando.value = {
+    ...consulta,
+    inicio: dataLocal
+  };
+};
 const formatarData = (data) => {
   return new Date(data)
     .toLocaleString('pt-BR', {
@@ -25,16 +46,70 @@ const todasConsultas = async () => {
         const response = await api.get('/api/appointments');
         const result = response.data.data;
         console.log(result);
+        errorMessage.value = '';
         consultas.value = result.map(sessao => ({
             ...sessao,
+            inicioOriginal: sessao.inicio,
+            fimOriginal: sessao.fim,
             inicio: formatarData(sessao.inicio),
             fim: formatarData(sessao.fim)
-    }));
+}));
     } catch (error) {
         console.log(error);
         errorMessage.value = error.response?.data?.message || 'Erro ao buscar consultas';
     }
 }
+
+const excluirConsulta = async (id) => {
+  const confirmar = confirm('Deseja realmente excluir esta consulta?');
+
+  if (!confirmar) return;
+  try {
+    await api.delete(`/api/appointments/${id}`);
+    consultas.value = consultas.value.filter(c => c.id !== id);
+  } catch (error) {
+      console.log(error)
+  }
+}
+
+const salvarEdicao = async () => {
+  try {
+    const payload = {};
+
+    if (consultaEditando.value.inicio) {
+      payload.inicio = consultaEditando.value.inicio;
+    }
+
+    if (consultaEditando.value.cep) {
+      payload.cep = consultaEditando.value.cep;
+    }
+
+    if (consultaEditando.value.numero !== null && consultaEditando.value.numero !== '') {
+      payload.numero = consultaEditando.value.numero;
+    }
+
+    if (consultaEditando.value.complemento !== null && consultaEditando.value.complemento !== '') {
+      payload.complemento = consultaEditando.value.complemento;
+    }
+
+    await api.put(`/api/appointments/${consultaEditando.value.id}`, payload);
+
+    errorMessage.value = '';
+
+    alert("Consulta atualizada!")
+
+    await todasConsultas();
+    consultaEditando.value = null;
+
+  } catch (error) {
+  console.log(error);
+
+  errorMessage.value =
+    error.response?.data?.error ||
+    error.response?.data?.message ||
+    'Erro ao salvar';
+  }
+};
 
 onMounted (() => {
     todasConsultas();
@@ -42,12 +117,14 @@ onMounted (() => {
 
 </script>
 
-
-
 <template>
   <div class="dashboard">
-    <h1>Dashboard</h1>
+    <h1>Dashboard</h1> 
+    <button @click="logout" class="logout">Sair</button>
     <h2> Lista de consultas</h2>
+
+    <p v-if="errorMessage" class="erro">{{ errorMessage }}</p>
+
     <table class = "tabela">
       <thead>
         <tr>
@@ -58,18 +135,38 @@ onMounted (() => {
           <th>Rua</th>
           <th>Complemento</th>
           <th>Clima</th>
+          <th>Ações</th>
         </tr>
       </thead>
 
        <tbody>
         <tr v-for="consulta in consultas" :key="consulta.id">
           <td>{{ consulta.user.nome }}</td>
-          <td>{{ consulta.inicio }}</td>
-          <td>{{ consulta.address.cep }}</td>
-          <td>{{ consulta.address.numero }}</td>
+          <td v-if="consultaEditando?.id === consulta.id">
+            <input type="datetime-local" v-model="consultaEditando.inicio"/>
+          </td>
+          <td v-else>{{ consulta.inicio }}</td>
+          <td v-if="consultaEditando?.id === consulta.id">
+            <input v-model="consultaEditando.cep"/>
+          </td>
+          <td v-else>{{ consulta.address.cep }}</td>
+          <td v-if="consultaEditando?.id === consulta.id">
+            <input v-model="consultaEditando.numero"/>
+          </td>
+          <td v-else>{{ consulta.address.numero }}</td>
           <td>{{ consulta.address.logradouro}}</td>
-          <td>{{ consulta.address.complemento }}</td>
+          <td v-if="consultaEditando?.id === consulta.id">
+            <input v-model="consultaEditando.complemento"/>
+          </td>
+          <td v-else>{{ consulta.address.complemento }}</td>
           <td>{{ consulta.weather?.message || "Sem previsão" }}</td>
+          <td class="acoes">
+            <button v-if="consultaEditando?.id === consulta.id" @click="salvarEdicao">
+              Salvar
+            </button>
+            <button class="editar" @click="editarConsulta(consulta)">Editar</button>
+            <button class="excluir" @click="excluirConsulta(consulta.id)">Excluir</button>
+          </td>
         </tr>
       </tbody>
 
@@ -116,6 +213,58 @@ h2 {
 
 .tabela tr:hover {
   background: #f5f7fb;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.editar,
+.excluir {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.editar {
+  background-color: #4facfe;
+}
+
+.excluir {
+  background-color: #ff4d4f;
+}
+
+.editar:hover,
+.excluir:hover {
+  opacity: 0.85;
+}
+
+.erro {
+  background-color: #ffeaea;
+  color: #d93025;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  border-left: 4px solid #d93025;
+}
+
+.logout {
+  background: #ff5b5b;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background: #e04848;
 }
 
 </style>
