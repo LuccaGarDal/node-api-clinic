@@ -16,21 +16,28 @@ const logout = () => {
   }
 
 const editarConsulta = (consulta) => {
-  const data = new Date(consulta.inicioOriginal);
-
-  const tzOffset = data.getTimezoneOffset() * 60000; //
-  const dataLocal = new Date(data.getTime() - tzOffset)
-    .toISOString()
-    .slice(0, 16);
-
   consultaEditando.value = {
     id: consulta.id,
-    inicio: dataLocal,
+    inicio: formatToLocalInput(consulta.inicioOriginal),
     cep: consulta.address?.cep || '',
     numero: consulta.address?.numero || '',
     complemento: consulta.address?.complemento || ''
   };
 };
+
+const formatToLocalInput = (date) => {
+  const d = new Date(date);
+  const pad = (n) => n.toString().padStart(2, '0');
+
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const min = pad(d.getMinutes());
+
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+};
+
 const formatarData = (data) => {
   const d = new Date(data);
   return d.toLocaleString('pt-BR', {
