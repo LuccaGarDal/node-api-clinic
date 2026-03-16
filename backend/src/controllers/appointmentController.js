@@ -2,6 +2,7 @@ import {prisma} from '../config/db.js';
 import { getCepData } from '../service/cepService.js';
 import { getRainForecast } from '../service/weatherService.js';
 import { z } from 'zod';
+import { DateTime } from 'luxon';
 
 const createAppointment = async (req, res) => {
     const {notas, inicio, cep, numero, complemento} = req.body;
@@ -136,7 +137,6 @@ const updateAppointment = async (req, res) => {
                 return res.status(400).json({ message: "CEP inválido" });
             }
 
-            console.log("foi");
             
             addressUpdate.cep = cep.replace(/\D/g, "");
             addressUpdate.logradouro = cepData.logradouro;
@@ -169,7 +169,7 @@ const updateAppointment = async (req, res) => {
     
     if (inicio !== undefined && inicio !== null && inicio !== "") {
     
-        const dataInicio = new Date(`${inicio}:00`);
+        const dataInicio = DateTime.fromISO(inicio, { zone: 'America/Bahia' }).toJSDate();
 
         if (isNaN(dataInicio.getTime())) {
             return res.status(400).json({
@@ -194,6 +194,7 @@ const updateAppointment = async (req, res) => {
 
         updateData.inicio = dataInicio;
         updateData.fim = dataFim;
+        console.log("Data de início atualizada para:", dataInicio);
     }
 
     const updatedAppointment = await prisma.appointment.update({
