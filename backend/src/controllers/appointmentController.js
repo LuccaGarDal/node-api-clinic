@@ -17,6 +17,13 @@ const createAppointment = async (req, res) => {
         })
     }
 
+    if (!numero) {
+        return res.status(400).json ({
+            status: "error",
+            message: "O número da residência é obrigatório"
+        })
+    }
+
     const appointmentExists = await prisma.appointment.findFirst({
         where: {
             AND: [

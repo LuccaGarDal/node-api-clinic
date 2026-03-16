@@ -43,7 +43,7 @@ const routes = [
           component: Consulta
         },
         {
-          path: "consultas",
+          path: "minhas-consultas",
           name: "minhas-consultas",
           component: MinhasConsultas
         }

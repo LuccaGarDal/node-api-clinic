@@ -3,10 +3,24 @@
 import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue';
 import  api  from '../services/api';
+import { computed } from 'vue';
 
 const router = useRouter();
 const errorMessage = ref('');
 const consultas = ref([]);
+
+const imagemClima = (mensagem) => {
+    if(!mensagem) return '/images/erro.png';
+
+      const text = mensagem.toLowerCase()
+
+
+    if(text.includes('dia')) return '/images/chuvoso.png';
+    if(text.includes('não')) return '/images/ensolarado.png';
+
+    return '/images/erro.png';
+
+}
 
 const formatarData = (data) => {
   return new Date(data)
@@ -67,10 +81,19 @@ onMounted(() => {
         </span>
       </p>
 
-      <p>
-        <b>Clima para o dia:</b>
-        {{ consulta.weather?.message || "Sem previsão do tempo" }}
-      </p>
+      <div class="clima">
+        <p>
+          <b>Clima para o dia:</b>
+          {{ consulta.weather?.message || "Sem previsão do tempo" }}
+        </p>
+
+        <img
+          :src="imagemClima(consulta.weather?.message)"
+          alt="Clima"
+          class="icone-clima"
+        />
+      </div>
+      
 
     </div>
 
@@ -99,5 +122,17 @@ h1 {
 .consulta-itens p {
   margin: 6px 0;
 }
+
+.icone-clima {
+  width: 70px;
+  height: 70px;
+}
+
+.clima {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 
 </style>

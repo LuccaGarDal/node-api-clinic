@@ -16,7 +16,6 @@ const consultaAgendada = ref(false);
 
 
 const agendar = async () => {
-  
     try {
     const response = await api.post('/api/appointments', {
       notas: notas.value,
@@ -36,6 +35,18 @@ const agendar = async () => {
  
 };
 
+const limparFormulario = () => {
+  consultaAgendada.value = false
+
+  errorMessage.value = ''
+
+  inicio.value = ''
+  notas.value = ''
+  cep.value = ''
+  numero.value = ''
+  complemento.value = ''
+}
+
 const formatarData = (data) => {
   const d = new Date(data);
 
@@ -54,15 +65,15 @@ const formatarData = (data) => {
 
       <h1>Agendar Consulta</h1>
 
-      <div class="formulario">
+      <div v-if="!consultaAgendada" class="formulario">
         <input type="datetime-local" v-model="inicio" />
         <input v-model="notas" placeholder="Observações da consulta" />
         <input v-model="cep" placeholder="CEP" />
         <input v-model="numero" placeholder="Número da residência" />
         <input v-model="complemento" placeholder="Complemento" />
-      </div>
 
-      <button class="botao" @click="agendar">Agendar</button>
+        <button class="botao" @click="agendar">Agendar</button>
+      </div>
 
       <p v-if="errorMessage" class="erro">
         {{ errorMessage }}
@@ -73,8 +84,9 @@ const formatarData = (data) => {
 
         <p><b>Data:</b> {{ formatarData(inicio)}}</p>
         <p><b>Observações:</b> {{ notas }}</p>
-      </div>
 
+        <button class="botao" @click="limparFormulario">Agendar nova consulta</button>
+      </div>
 
     </div>
   </div>

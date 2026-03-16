@@ -25,8 +25,11 @@ const editarConsulta = (consulta) => {
     .slice(0, 16);
 
   consultaEditando.value = {
-    ...consulta,
-    inicio: dataLocal
+    id: consulta.id,
+    inicio: dataLocal,
+    cep: consulta.address?.cep || '',
+    numero: consulta.address?.numero || '',
+    complemento: consulta.address?.complemento || ''
   };
 };
 const formatarData = (data) => {
@@ -161,10 +164,13 @@ onMounted (() => {
           <td v-else>{{ consulta.address.complemento }}</td>
           <td>{{ consulta.weather?.message || "Sem previsão" }}</td>
           <td class="acoes">
-            <button v-if="consultaEditando?.id === consulta.id" @click="salvarEdicao">
+            <button
+             class="editar" v-if="consultaEditando?.id !== consulta.id" @click="editarConsulta(consulta)">
+              Editar
+            </button>
+            <button v-else @click="salvarEdicao">
               Salvar
             </button>
-            <button class="editar" @click="editarConsulta(consulta)">Editar</button>
             <button class="excluir" @click="excluirConsulta(consulta.id)">Excluir</button>
           </td>
         </tr>
