@@ -31,8 +31,8 @@
     <section v-if="$route.path === '/portal'" class="sobre">
       <h2>Bem-vindo(a) à nossa clínica!</h2>
       <p>
-        Aqui no Portal da Clínica, você encontra **praticidade e segurança** para gerenciar suas consultas e acompanhar seu histórico de atendimento. 
-        Nosso objetivo é oferecer **um atendimento humanizado e de qualidade**, garantindo que cada paciente se sinta acolhido.
+        Aqui no Portal da Clínica, você encontra praticidade e segurança para gerenciar suas consultas e acompanhar seu histórico de atendimento. 
+        Nosso objetivo é oferecer um atendimento humanizado e de qualidade, garantindo que cada paciente se sinta acolhido.
       </p>
       <p>
         Navegue pelas opções acima para agendar uma nova consulta ou conferir suas consultas já marcadas. Tudo de forma rápida e online!
