@@ -18,9 +18,8 @@ const logout = () => {
 const editarConsulta = (consulta) => {
   const data = new Date(consulta.inicioOriginal);
 
-  const dataLocal = new Date(
-    data.getTime() - data.getTimezoneOffset() * 60000
-  )
+  const tzOffset = data.getTimezoneOffset() * 60000; //
+  const dataLocal = new Date(data.getTime() - tzOffset)
     .toISOString()
     .slice(0, 16);
 
