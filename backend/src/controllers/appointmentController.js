@@ -34,7 +34,7 @@ const createAppointment = async (req, res) => {
     });
 
     if (appointmentExists) {
-        return res.status(400).json({ message: "There is already an appointment for this date" });
+        return res.status(400).json({ message: "Já existe uma consulta agendada para este horário" });
     }
 
     const cepData = await getCepData(cep);
@@ -72,11 +72,11 @@ const deleteAppointment = async (req, res) => {
     });
 
     if (!appointment) {
-        return res.status(404).json({ error: "Appointment not found" });
+        return res.status(404).json({ error: "Consulta não encontrada" });
     }
 
     if (appointment.userId !== req.user.id && req.user.cargo !== 'SECRETARIO') {
-        return res.status(403).json({ error: "You are not authorized to delete this appointment" });
+        return res.status(403).json({ error: "Você não está autorizado a excluir esta consulta" });
     }
 
     await prisma.$transaction(async (tx) => {
@@ -91,7 +91,7 @@ const deleteAppointment = async (req, res) => {
 
     res.status(200).json({
         status:"success",
-        message: "Appointment deleted successfully" 
+        message: "Consulta deletada com sucesso" 
     });
 }
 
@@ -105,11 +105,11 @@ const updateAppointment = async (req, res) => {
     });
 
     if (!appointment) {
-        return res.status(404).json({ error: "Appointment not found" });
+        return res.status(404).json({ error: "Consulta não encontrada" });
     }
 
     if (appointment.userId !== req.user.id && req.user.cargo !== 'SECRETARIO') {
-        return res.status(403).json({ error: "You are not authorized to update this appointment" });
+        return res.status(403).json({ error: "Você não está autorizado a atualizar esta consulta" });
     }
 
     if (cep !== undefined || numero !== undefined || complemento !== undefined) {
@@ -173,10 +173,10 @@ const updateAppointment = async (req, res) => {
 
         if (isNaN(dataInicio.getTime())) {
             return res.status(400).json({
-                error: "Invalid date"
+                error: "Data inválida"
             });
         }
-        const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000); // Assuming appointments are 30 minutes long
+        const dataFim = new Date(dataInicio.getTime() + 30 * 60 * 1000);
 
         const appointmentExists = await prisma.appointment.findFirst({
             where: {
@@ -206,7 +206,7 @@ const updateAppointment = async (req, res) => {
 
     res.status(200).json({
         status: "success",
-        message: "Appointment updated successfully",
+        message: "Consulta atualizada com sucesso",
         data: updatedAppointment
     });
     

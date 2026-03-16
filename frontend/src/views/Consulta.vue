@@ -16,6 +16,8 @@ const consultaAgendada = ref(false);
 
 
 const agendar = async () => {
+    errorMessage.value = ''
+
     try {
     const response = await api.post('/api/appointments', {
       notas: notas.value,
