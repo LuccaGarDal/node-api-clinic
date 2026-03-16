@@ -17,8 +17,6 @@ const login = async () => {
       senha: senha.value
     });
 
-    console.log(response)
-
     localStorage.setItem('token', response.data.data.token);
     localStorage.setItem('cargo' , response.data.data.user.cargo);
     if(response.data.data.user.cargo === 'PACIENTE') {

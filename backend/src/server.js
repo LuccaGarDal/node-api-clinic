@@ -30,8 +30,10 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
 }); 
 
-const server = app.listen(5000, () => {
-  console.log('Server is running on port 5000');
+const port = process.env.port || 5000;
+
+const server = app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 }   );
 
 process.on("unhandledRejection", (err) => {

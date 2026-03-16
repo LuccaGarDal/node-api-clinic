@@ -27,11 +27,9 @@ const agendar = async () => {
       complemento: complemento.value
     });
 
-    console.log(response);
     consultaAgendada.value = true;
 
   } catch (error) {
-    console.log(error);
     errorMessage.value = error.response?.data?.message || 'Erro ao agendar consulta';
   }
  

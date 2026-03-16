@@ -48,7 +48,6 @@ const todasConsultas = async () => {
     try {
         const response = await api.get('/api/appointments');
         const result = response.data.data;
-        console.log(result);
         errorMessage.value = '';
         consultas.value = result.map(sessao => ({
             ...sessao,
@@ -58,7 +57,6 @@ const todasConsultas = async () => {
             fim: formatarData(sessao.fim)
 }));
     } catch (error) {
-        console.log(error);
         errorMessage.value = error.response?.data?.message || 'Erro ao buscar consultas';
     }
 }
@@ -71,7 +69,7 @@ const excluirConsulta = async (id) => {
     await api.delete(`/api/appointments/${id}`);
     consultas.value = consultas.value.filter(c => c.id !== id);
   } catch (error) {
-      console.log(error)
+      errorMessage.value = error.response?.data?.message || 'Erro ao deletar consulta';
   }
 }
 
@@ -105,7 +103,6 @@ const salvarEdicao = async () => {
     consultaEditando.value = null;
 
   } catch (error) {
-  console.log(error);
 
   errorMessage.value =
     error.response?.data?.error ||

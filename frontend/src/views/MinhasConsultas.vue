@@ -39,14 +39,12 @@ const minhasConsultas = async () => {
     try {
         const response = await api.get('/api/myAppointments');
         const result = response.data.data;
-        console.log(result);
         consultas.value = result.map(sessao => ({
             ...sessao,
             inicio: formatarData(sessao.inicio),
             fim: formatarData(sessao.fim)
     }));
     } catch (error) {
-        console.log(error);
         errorMessage.value = error.response?.data?.message || 'Erro ao buscar consultas';
     }
 }
