@@ -18,10 +18,13 @@ const consultaAgendada = ref(false);
 const agendar = async () => {
     errorMessage.value = ''
 
+    const inicioUTC = new Date(inicio.value);
+    const isoUTC = inicioUTC.toISOString(); // formato padrão UTC
+
     try {
     const response = await api.post('/api/appointments', {
       notas: notas.value,
-      inicio: inicio.value,
+      inicio: isoUTC,
       cep: cep.value,
       numero: numero.value,
       complemento: complemento.value

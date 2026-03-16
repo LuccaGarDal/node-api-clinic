@@ -33,16 +33,15 @@ const editarConsulta = (consulta) => {
   };
 };
 const formatarData = (data) => {
-  return new Date(data)
-    .toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-    .replace(',', ' às');
+  const d = new Date(data);
+  return d.toLocaleString('pt-BR', {
+    timeZone: 'America/Bahia', // força horário de Salvador
+    dateStyle: 'short',
+    timeStyle: 'short'
+  })
+  .replace(',', ' às');;
 };
+
 
 const todasConsultas = async () => {
     try {
