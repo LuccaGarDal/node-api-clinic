@@ -110,6 +110,8 @@ https://github.com/LuccaGarDal/node-api-clinic
 ```bash
 cd backend
 npm install
+npx prisma generate
+npx prisma db push
 npm run dev
 ```
 Backend disponível em: http://localhost:5000
