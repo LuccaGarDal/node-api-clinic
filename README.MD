@@ -122,3 +122,13 @@ npm install
 npm run dev
 ```
 Frontend disponível em: http://localhost:5173
+
+## Estrutura do projeto
+
+backend/
+frontend/
+README.md
+
+## Autor
+
+Lucca Garcia
