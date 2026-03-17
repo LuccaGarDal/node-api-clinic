@@ -1,7 +1,6 @@
 import {prisma} from '../config/db.js';
 import { getCepData } from '../service/cepService.js';
 import { getRainForecast } from '../service/weatherService.js';
-import { z } from 'zod';
 import { DateTime } from 'luxon';
 
 const createAppointment = async (req, res) => {
