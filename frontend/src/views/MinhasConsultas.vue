@@ -22,6 +22,18 @@ const imagemClima = (mensagem) => {
 
 }
 
+const excluirConsulta = async (id) => {
+  const confirmar = confirm('Deseja realmente excluir esta consulta?');
+
+  if (!confirmar) return;
+  try {
+    await api.delete(`/api/appointments/${id}`);
+    consultas.value = consultas.value.filter(c => c.id !== id);
+  } catch (error) {
+      errorMessage.value = error.response?.data?.message || 'Erro ao deletar consulta';
+  }
+}
+
 const formatarData = (data) => {
   const d = new Date(data);
   return d.toLocaleString('pt-BR', {
@@ -77,6 +89,10 @@ onMounted(() => {
         </span>
       </p>
 
+      <td class="acoes">
+        <button class="excluir" @click="excluirConsulta(consulta.id)">Excluir</button>
+      </td>
+
       <div class="clima">
         <p>
           <b>Clima para o dia:</b>
@@ -128,6 +144,29 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.excluir {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.excluir {
+  background-color: #ff4d4f;
+}
+
+.excluir:hover {
+  opacity: 0.85;
 }
 
 

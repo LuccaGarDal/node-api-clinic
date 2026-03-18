@@ -79,14 +79,12 @@ const deleteAppointment = async (req, res) => {
         return res.status(403).json({ error: "Você não está autorizado a excluir esta consulta" });
     }
 
-    await prisma.$transaction(async (tx) => {
-        await tx.appointment.delete({
-            where: { id: req.params.id }
-        });
+    await prisma.appointment.delete({
+        where: { id: req.params.id }
+    });
 
-        await tx.address.delete({
-            where: { id: appointment.addressId }
-        });
+    await prisma.address.delete({
+        where: { id: appointment.addressId }
     });
 
     res.status(200).json({

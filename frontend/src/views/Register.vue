@@ -38,7 +38,7 @@ const register = async () => {
         <select v-model="cargo">
           <option disabled value="">Selecione o cargo</option>
           <option value="PACIENTE">Paciente</option>
-          <option value="ADMIN">Secretário</option>
+          <option value="SECRETARIO">Secretário</option>
         </select>
       </div>
 
