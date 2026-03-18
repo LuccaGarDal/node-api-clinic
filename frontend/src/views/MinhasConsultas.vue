@@ -89,9 +89,9 @@ onMounted(() => {
         </span>
       </p>
 
-      <td class="acoes">
+      <div class="acoes">
         <button class="excluir" @click="excluirConsulta(consulta.id)">Excluir</button>
-      </td>
+      </div>
 
       <div class="clima">
         <p>
